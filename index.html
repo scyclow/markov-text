@@ -1,0 +1,119 @@
+<DOCTYPE! html>
+<html>
+
+<head>
+  <title>Markovi Text</title>
+  <META charset="UTF-8">
+  <META name="viewport" content="width=device-width, initial-scale=1.0">
+  <META http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <META
+    name="description"
+    content="Build unique gramatical sentences from training data."
+  >
+  <META
+    name="keywords"
+    content="god, sex, power, the, love, wealth, happiness, nlp, markov chain"
+  >
+
+  <style type="text/css">
+    * {margin: 0;padding: 0;}
+
+    #app {
+      padding: 20px;
+    }
+
+    #input, #output {
+      display: inline-block;
+      padding: 1em;
+
+      font-size: 17px;
+      line-height: 1.3;
+      height: 600px;
+      width: 45.5%;
+    }
+
+    #input {
+      border: 2px solid black;
+      background-color: #eee;
+    }
+
+    #output {
+      height: 564px;
+      min-height: 564px;
+      max-height: 564px;
+      overflow: scroll;
+      border: 1px solid #333;
+      margin-top: 25px;
+      margin-left: 15px;
+    }
+
+    @media (max-width: 700px) {
+      #input, #output {
+        width: 100%
+      }
+
+      #output {
+        margin-left: 0;
+        width: 93%;
+      }
+    }
+
+    #control {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+
+      width: 210px;
+    }
+
+    #markovify {
+      display: inline-block;
+      font-size: 18px;
+      padding: 0.5em;
+      cursor: pointer;
+      border: 1px solid black;
+      border-radius: 5px;
+      margin-left: 10px;
+    }
+
+    #limit {
+      display: inline-block;
+      height: 2em;
+      width: 100px;
+      font-size: 15px;
+      padding: 0.5em;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <textarea id="input">
+      Modern NLP algorithms are based on machine learning, especially statistical machine learning. The paradigm of machine learning is different from that of most prior attempts at language processing. Prior implementations of language-processing tasks typically involved the direct hand coding of large sets of rules. The machine-learning paradigm calls instead for using general learning algorithms — often, although not always, grounded in statistical inference — to automatically learn such rules through the analysis of large corpora of typical real-world examples. A corpus (plural, "corpora") is a set of documents (or sometimes, individual sentences) that have been hand-annotated with the correct values to be learned.
+
+      Many different classes of machine learning algorithms have been applied to NLP tasks. These algorithms take as input a large set of "features" that are generated from the input data. Some of the earliest-used algorithms, such as decision trees, produced systems of hard if-then rules similar to the systems of hand-written rules that were then common. Increasingly, however, research has focused on statistical models, which make soft, probabilistic decisions based on attaching real-valued weights to each input feature. Such models have the advantage that they can express the relative certainty of many different possible answers rather than only one, producing more reliable results when such a model is included as a component of a larger system.
+    </textarea>
+
+    <div id="output"></div>
+
+    <form id="control">
+      <input type="text" placeholder="Length" id="limit" />
+      <input type="submit" id="markovify" value="Translate" />
+    </form>
+  </div>
+
+  <script src="./markovText.js"></script>
+  <script>
+    var output = document.getElementById('output');
+
+    document.getElementById('control').onsubmit = (e) => {
+      e.preventDefault();
+      var input = document.getElementById('input').value;
+      var limit = document.getElementById('limit').value;
+      output.innerHTML = markov(input, limit)
+    }
+  </script>
+</body>
+
+</html>
