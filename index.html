@@ -106,12 +106,13 @@
   <script src="./markovText.js"></script>
   <script>
     var output = document.getElementById('output');
+    var data = document.getElementById('data');
 
-    document.getElementById('control').onsubmit = (e) => {
+    document.getElementById('control').onsubmit = function(e) {
       e.preventDefault();
       var input = document.getElementById('input').value;
       var limit = document.getElementById('limit').value;
-      output.innerHTML = markov(input, limit)
+      output.innerHTML = markov(input, limit);
     }
   </script>
 </body>

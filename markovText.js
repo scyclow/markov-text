@@ -4,53 +4,61 @@
 // Many different classes of machine learning algorithms have been applied to NLP tasks. These algorithms take as input a large set of "features" that are generated from the input data. Some of the earliest-used algorithms, such as decision trees, produced systems of hard if-then rules similar to the systems of hand-written rules that were then common. Increasingly, however, research has focused on statistical models, which make soft, probabilistic decisions based on attaching real-valued weights to each input feature. Such models have the advantage that they can express the relative certainty of many different possible answers rather than only one, producing more reliable results when such a model is included as a component of a larger system.
 // `
 // if word ends a sentence
-const isLastWord = word => (
-  word[word.length-1] === '.' ||
-  word[word.length-1] === '\n' && word[word.length-2] === '.'
-);
+const isLastWord = word => word.trim()[word.length-1] === '.';
 const sample = arr => arr[Math.floor(Math.random() * arr.length)];
-const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1);
+const capitalize = str => str[0].toUpperCase() + str.slice(1);
+const clean = str => str ? str.trim() : '';
+const compact = arr => arr.filter(a => !!a);
+const breakOn = (text, br) => compact(text.split(br));
 
-function markov(input, limit) {
-  let tokenized = input.split(' ');
-  let textLen = tokenized.length;
-  limit = limit || textLen;
+function tokenize(text) {
+  return breakOn(text, ' ');
+}
 
-  let nextWords = {};
+function parseText(text) {
+  const tokens = tokenize(text);
+  const breaks = breakOn(text, '\n').length;
+  const wordMap = {};
+  const startingWords = [];
 
-  let startingWords = [];
-
-  for (let i = 0; i < textLen - 1; i++) {
-    let currentWord = tokenized[i];
-    let nextWord = tokenized[i+1];
-    let previousWord = i && tokenized[i-1];
+  tokens.forEach((currentWord, i) => {
+    const nextWord     = clean(tokens[i+1]);
+    const previousWord = clean(i && tokens[i-1]);
+    currentWord        = clean(currentWord);
 
     if (currentWord && !previousWord || isLastWord(previousWord)) {
       startingWords.push(currentWord);
     }
 
-    if (nextWords[currentWord]) {
-      nextWords[currentWord].push(nextWord);
+    if (wordMap[currentWord]) {
+      wordMap[currentWord].push(nextWord);
     }
-    else {
-      nextWords[currentWord] = [nextWord];
+    else if (nextWord) {
+      wordMap[currentWord] = [nextWord];
     }
-  }
+  });
 
-  let output = [capitalize(sample(startingWords))]
+  const data = { wordMap, startingWords, tokens, breaks };
+  console.log(data);
+
+  return data;
+}
+function markov(text, limit) {
+  const { wordMap, startingWords, tokens, breaks } = parseText(text);
+
+  limit = limit || tokens.length;
+
+  const output = [capitalize(sample(startingWords))]
 
   let previousWord;
   for (let i = 1; i < limit; i++) {
     previousWord = output[i-1];
-    let nextWord = nextWords[previousWord] && sample(nextWords[previousWord])
+    const nextWord = wordMap[previousWord] && sample(wordMap[previousWord])
 
-    // this one's an edge case; if it encounters the last word in the text
-    if (!nextWord) {
-      output.push(capitalize(sample(startingWords)))
-    }
-    // if sentence just ended, start a new sentence
-    else if (isLastWord(previousWord)) {
-      output.push(capitalize(nextWord));
+    // if it encounters the last word in the text ||
+    // if sentence just ended, then start a new sentence
+    if (!nextWord || isLastWord(previousWord)) {
+      output.push(capitalize(sample(startingWords)));
     }
     else {
       output.push(nextWord);
@@ -58,11 +66,11 @@ function markov(input, limit) {
   }
 
   // close out last sentence
-  while (!isLastWord(previousWord) && nextWords[previousWord]) {
-    let nextWord = sample(nextWords[previousWord])
+  while (!isLastWord(previousWord) && wordMap[previousWord]) {
+    const nextWord = sample(wordMap[previousWord])
     output.push(nextWord);
-    previousWord = nextWord
+    previousWord = nextWord;
   }
 
-  return output.join(' ')
+  return output.join(' ');
 }
